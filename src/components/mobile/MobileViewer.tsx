@@ -10,9 +10,7 @@ import { useModelStore } from '../../store/model-store';
 import { useUIStore, CANVAS_THEMES } from '../../store/ui-store';
 import { useResultsStore } from '../../store/results-store';
 import { TEMPLATES, getTemplateFromURL } from '../../utils/templates';
-import { SolverManager } from '../../core/solver-manager';
-import { solveModel } from '../../core/solver';
-import { runDesign } from '../../design/design-runner';
+import { runAnalysis } from '../../utils/run-analysis';
 import { InstallPrompt } from './InstallPrompt';
 import { AboutDialog } from '../shared/AboutDialog';
 
@@ -46,30 +44,15 @@ export function MobileViewer() {
     loadModel(tpl.load());
     setTimeout(() => window.dispatchEvent(new Event('zoom-extents')), 100);
 
-    // Auto-analyze after model loads
-    const autoAnalyze = async () => {
+    // Small delay so the canvas renders first, then analyze.
+    setTimeout(async () => {
       setIsAnalyzing(true);
-      const model = useModelStore.getState().getModel();
-      const { setAnalysisResults, setDesignResults, setSolving } = useResultsStore.getState();
-      setSolving(true);
       try {
-        const manager = new SolverManager();
-        const results = await manager.solve(model);
-        setAnalysisResults(results);
-        try { setDesignResults(runDesign(model, results)); } catch { /* optional */ }
-      } catch {
-        try {
-          const results = solveModel(model);
-          setAnalysisResults(results);
-          try { setDesignResults(runDesign(model, results)); } catch { /* optional */ }
-        } catch { /* failed */ }
+        await runAnalysis(useModelStore.getState().getModel());
       } finally {
-        setSolving(false);
         setIsAnalyzing(false);
       }
-    };
-    // Small delay so canvas renders first, then analyze
-    setTimeout(autoAnalyze, 300);
+    }, 300);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleZoomExtents = useCallback(() => {
@@ -111,55 +94,23 @@ export function MobileViewer() {
     useResultsStore.getState().clearResults();
     setTimeout(() => window.dispatchEvent(new Event('zoom-extents')), 100);
 
-    // Auto-analyze new template
+    // Auto-analyze the new template.
     setIsAnalyzing(true);
     await new Promise((r) => setTimeout(r, 200));
-    const model = useModelStore.getState().getModel();
-    const { setAnalysisResults, setDesignResults, setSolving } = useResultsStore.getState();
-    setSolving(true);
     try {
-      const manager = new SolverManager();
-      const results = await manager.solve(model);
-      setAnalysisResults(results);
-      try { setDesignResults(runDesign(model, results)); } catch { /* optional */ }
-    } catch {
-      try {
-        const results = solveModel(model);
-        setAnalysisResults(results);
-        try { setDesignResults(runDesign(model, results)); } catch { /* optional */ }
-      } catch { /* failed */ }
+      await runAnalysis(useModelStore.getState().getModel());
     } finally {
-      setSolving(false);
       setIsAnalyzing(false);
     }
   };
 
   const handleAnalyze = async () => {
     setIsAnalyzing(true);
-    const model = useModelStore.getState().getModel();
-    const { setAnalysisResults, setDesignResults, setSolving } = useResultsStore.getState();
-    setSolving(true);
-
     try {
-      const manager = new SolverManager();
-      const results = await manager.solve(model);
-      setAnalysisResults(results);
-      try {
-        setDesignResults(runDesign(model, results));
-      } catch { /* Design is optional */ }
-      setActiveTab('results');
-    } catch {
-      // Worker failed, fallback to main thread
-      try {
-        const results = solveModel(model);
-        setAnalysisResults(results);
-        try {
-          setDesignResults(runDesign(model, results));
-        } catch { /* Design is optional */ }
+      if (await runAnalysis(useModelStore.getState().getModel())) {
         setActiveTab('results');
-      } catch { /* Analysis failed */ }
+      }
     } finally {
-      setSolving(false);
       setIsAnalyzing(false);
     }
   };

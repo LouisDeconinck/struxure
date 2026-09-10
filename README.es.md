@@ -148,6 +148,7 @@ src/
 │   └── mobile/     # Visor movil y aviso de instalacion
 ├── store/          # Estado global (Zustand)
 └── utils/          # Plantillas, exportacion, importacion DXF/IFC, color ramp, animacion
+    └── run-analysis.ts          # Punto unico: resolver, fallback y verificaciones de diseno
 ```
 
 ## Analítica

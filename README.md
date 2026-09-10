@@ -148,6 +148,7 @@ src/
 │   └── mobile/     # Mobile viewer and install prompt
 ├── store/          # Global state (Zustand)
 └── utils/          # Templates, export, DXF/IFC import, color ramp, animation
+    └── run-analysis.ts          # Single entry point: solve, fall back, run design checks
 ```
 
 ## Analytics

@@ -2,9 +2,8 @@ import { useRef, useState } from 'react';
 import { useModelStore } from '../../store/model-store';
 import { useResultsStore } from '../../store/results-store';
 import { useUIStore } from '../../store/ui-store';
-import { solveModel } from '../../core/solver';
 import { SolverManager } from '../../core/solver-manager';
-import { runDesign } from '../../design/design-runner';
+import { runAnalysis } from '../../utils/run-analysis';
 import { exportModelJSON, exportResultsCSV } from '../../utils/export';
 import { generateReport, captureDesignScreenshot } from '../../utils/report-generator';
 import { exportResultsToIfc } from '../../utils/ifc-export';
@@ -22,11 +21,8 @@ export function Toolbar() {
   const loadModel = useModelStore((s) => s.loadModel);
   const clearModel = useModelStore((s) => s.clearModel);
   const bulkImportFull = useModelStore((s) => s.bulkImportFull);
-  const setAnalysisResults = useResultsStore((s) => s.setAnalysisResults);
-  const setDesignResults = useResultsStore((s) => s.setDesignResults);
   const setAnalysisError = useResultsStore((s) => s.setAnalysisError);
   const setSolving = useResultsStore((s) => s.setSolving);
-  const setSolverProgress = useResultsStore((s) => s.setSolverProgress);
   const clearResults = useResultsStore((s) => s.clearResults);
   const setModelName = useUIStore((s) => s.setModelName);
   const modelName = useUIStore((s) => s.modelName);
@@ -59,40 +55,7 @@ export function Toolbar() {
       return;
     }
 
-    // Try Web Worker first, fallback to synchronous
-    const manager = new SolverManager();
-    solverRef.current = manager;
-    manager.onProgress = (step, progress) => {
-      setSolverProgress(step, progress);
-    };
-    setSolving(true);
-
-    try {
-      const results = await manager.solve(model);
-      setAnalysisResults(results);
-      try {
-        const designResults = runDesign(model, results);
-        setDesignResults(designResults);
-      } catch {
-        // Design is optional
-      }
-    } catch {
-      // Worker failed, fallback to main thread
-      try {
-        const results = solveModel(model);
-        setAnalysisResults(results);
-        try {
-          const designResults = runDesign(model, results);
-          setDesignResults(designResults);
-        } catch {
-          // Design is optional
-        }
-      } catch (err) {
-        setAnalysisError(err instanceof Error ? err.message : 'Analysis failed');
-      }
-    } finally {
-      solverRef.current = null;
-    }
+    await runAnalysis(model, (manager) => { solverRef.current = manager; });
   };
 
   const handleCancelAnalysis = () => {

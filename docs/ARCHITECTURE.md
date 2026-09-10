@@ -19,29 +19,32 @@ read independently.
    elements, materials, sections, supports, nodal loads, distributed loads.
    Clicking Analyze reads the current model out of this store.
 
-2. **`src/core/solver-manager.ts`** (`SolverManager`) spawns
+2. **`src/utils/run-analysis.ts`** (`runAnalysis`) is the only entry point
+   the UI uses. It owns the whole sequence — solve in the worker, fall back
+   to the main thread, run the design checks, write everything into the
+   results store — so no caller repeats it. `App.tsx`,
+   `src/components/layout/Toolbar.tsx` and
+   `src/components/mobile/MobileViewer.tsx` each just call it; the toolbar
+   additionally passes a callback to receive the live `SolverManager` so its
+   Cancel button can reach an in-flight solve.
+
+3. **`src/core/solver-manager.ts`** (`SolverManager`) spawns
    `solver.worker.ts` as a module worker and exposes a promise-based
    `solve(model)` API with a progress callback. `SolverManager` itself has
    *no* fallback logic — if the worker rejects, its promise rejects. The
-   fallback to a synchronous solve lives in the callers instead: `App.tsx`,
-   `src/components/layout/Toolbar.tsx`, and `src/components/mobile/MobileViewer.tsx`
-   all follow the same pattern — try `new SolverManager().solve(model)`,
-   and on failure catch and call `solveModel(model)` from `src/core/solver.ts`
-   directly on the main thread. This same "worker fails → solve synchronously"
-   logic is duplicated across three files, several times over within
-   `MobileViewer.tsx` alone (its template-load and analyze handlers each
-   repeat it), and none of the copies are covered by a test; centralizing
-   it inside `SolverManager` — e.g. an internal fallback so callers only
-   ever see one code path — would remove the duplication. That's out of
-   scope here, but worth flagging for anyone touching this area next.
+   fallback to a synchronous `solveModel(model)` from `src/core/solver.ts`
+   lives in `runAnalysis`, which is deliberate: the worker can be
+   unavailable (blocked, unsupported) rather than the model unsolvable, and
+   keeping the retry outside `SolverManager` leaves the manager a thin,
+   testable wrapper over the worker boundary.
 
-3. **`src/core/solver.worker.ts`** runs the same pipeline as `solver.ts`
+4. **`src/core/solver.worker.ts`** runs the same pipeline as `solver.ts`
    (assembly → boundary conditions → solve → post-process) but posts
    `progress` messages at each step (`assembly`, `boundaries`, `solving`,
    `postprocess`, `complete`) and a final `result` message, typed as
    `WorkerResponse` in that file.
 
-4. **`src/core/solver.ts`** (`solveModel`) is the direct-stiffness solver:
+5. **`src/core/solver.ts`** (`solveModel`) is the direct-stiffness solver:
    assemble the global stiffness matrix and force vector
    (`src/core/assembler.ts`, which builds each element's 12×12 local
    stiffness matrix via `src/core/local-stiffness.ts` and rotates it into
@@ -50,7 +53,7 @@ read independently.
    for the free-DOF displacements by matrix inversion (`ml-matrix`), then
    hand off to post-processing.
 
-5. **`src/core/post-processor.ts`** (`postProcess`) computes per-node
+6. **`src/core/post-processor.ts`** (`postProcess`) computes per-node
    displacements, support reactions (`R = K·u`, restricted to restrained
    DOFs and adjusted for applied nodal loads), and per-element internal
    forces, returning an `AnalysisResults` object.
