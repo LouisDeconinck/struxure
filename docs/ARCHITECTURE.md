@@ -241,6 +241,10 @@ Tests live alongside the code they cover, in `__tests__/` directories:
 [docs/validation.md](validation.md) records what has actually been checked
 against an independent reference and what has not.
 
+Tests run in `node` by default. A file that needs a DOM opts in with
+`// @vitest-environment jsdom` on its first line and renders through
+`@testing-library/react`.
+
 A validation test — required for any change to `src/core/` or
 `src/design/`, see [CONTRIBUTING.md](../CONTRIBUTING.md#the-rule-that-matters-most)
 — states its source (a closed-form solution, a cited textbook example, or a
