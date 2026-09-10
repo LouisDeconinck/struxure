@@ -14,7 +14,7 @@
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-![Struxure analizando un portico de acero de tres niveles, con los elementos coloreados por relacion demanda/capacidad](docs/images/hero.png)
+![Struxure analizando un portico de acero de tres niveles: se resuelve el modelo, se anima su deformada y se colorea por relacion demanda/capacidad](docs/images/hero.gif)
 
 </div>
 

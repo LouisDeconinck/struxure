@@ -14,7 +14,7 @@
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-![Struxure analysing a three-storey steel frame, with elements coloured by demand/capacity ratio](docs/images/hero.png)
+![Struxure analysing a three-storey steel frame: the model is solved, its deformed shape animated, then coloured by demand/capacity ratio](docs/images/hero.gif)
 
 </div>
 
