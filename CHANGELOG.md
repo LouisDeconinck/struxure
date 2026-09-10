@@ -22,6 +22,25 @@
   reference and what is not.
 - Social preview image and Open Graph / Twitter Card metadata.
 - Screenshots in the README and quick-start guide.
+- Component tests: files opt into a DOM with `// @vitest-environment jsdom`
+  and render through `@testing-library/react`.
+- `eslint-plugin-jsx-a11y`, Dependabot, CodeQL scanning and CODEOWNERS.
+
+### Changed
+
+- Modal dialogs are announced as dialogs, named by their heading, and close on
+  Escape; icon-only viewport controls and mobile toggles now expose their name
+  and state.
+- The analysis pipeline lives in one `runAnalysis()` helper instead of five
+  near-identical copies, so failures are reported consistently (#6).
+
+### Fixed (continued)
+
+- The service worker cache is versioned per release; it previously used a fixed
+  name that its own eviction logic could never clear, so returning visitors kept
+  being served a stale build.
+- Removed the `deploy` script, which invoked a `deploy.sh` absent from this
+  repository.
 
 ## v0.3.0
 - Apache-2.0 license, NOTICE, SECURITY policy and Code of Conduct
