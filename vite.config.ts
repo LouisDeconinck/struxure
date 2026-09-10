@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
 import { umamiPlugin } from './vite/umami-plugin'
+import { swVersionPlugin } from './vite/sw-version-plugin'
 import pkg from './package.json' with { type: 'json' }
 
 export default defineConfig(({ mode }) => {
@@ -17,6 +18,7 @@ export default defineConfig(({ mode }) => {
       react(),
       tailwindcss(),
       umamiPlugin(env.VITE_UMAMI_ID, env.VITE_UMAMI_SRC || 'https://cloud.umami.is/script.js'),
+      swVersionPlugin(pkg.version),
       viteStaticCopy({
         targets: [{
           src: 'node_modules/web-ifc/*.wasm',
