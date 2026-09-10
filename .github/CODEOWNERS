@@ -1,0 +1,8 @@
+# Default reviewer for everything.
+*                   @tiveor
+
+# The solver and the design checks decide whether the numbers are right;
+# changes here need a cited validation test (see CONTRIBUTING.md).
+/src/core/          @tiveor
+/src/design/        @tiveor
+/docs/validation.md @tiveor

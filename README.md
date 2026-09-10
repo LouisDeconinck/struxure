@@ -120,7 +120,6 @@ pnpm test         # Run tests
 pnpm test:watch   # Tests in watch mode
 pnpm lint         # Linting with ESLint
 pnpm preview      # Preview production build
-pnpm deploy       # Build and deploy to GitHub Pages
 ```
 
 ## Architecture
