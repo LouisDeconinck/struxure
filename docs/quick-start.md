@@ -1,4 +1,4 @@
-# Quick Start Guide — STRUXURE MVP
+# Quick Start Guide
 
 ## Prerequisites
 
@@ -23,6 +23,11 @@ Open `http://localhost:5173/struxure/` in your browser (Vite serves the app unde
 2. Load the Portal Frame template — a 3-bay, 2-story steel moment frame with loads already applied
 3. Click **Analyze** to run the analysis (design checks run automatically alongside it)
 4. Open **Display Settings** (top right of the viewport) and set **Heatmap** to **D/C Ratio** to see the elements colored by AISC 360 demand/capacity ratio
+
+![The analyzed model with the D/C ratio heatmap enabled: Display Settings sits at the top right, the colour scale at the bottom left, and peak shear and moment in the results bar](images/hero.png)
+
+You can skip the install entirely and do the same thing at
+[alvarotech.dev/struxure](https://alvarotech.dev/struxure/).
 
 ### Manual option: build a model step by step
 
@@ -92,6 +97,10 @@ The top bar has a **Model / Results** toggle. Once a model is analyzed, switchin
 
 When the deformed shape is visible, animation controls (Oscillate, Pulse, Progressive) appear at the bottom of the viewport.
 
+| **Diagram** set to Moment (M3) | **3D Sections** enabled |
+|---|---|
+| ![Bending moment diagram drawn along each member, with peak values labelled](images/force-diagrams.png) | ![The same members drawn as extruded 3D cross-sections instead of a wireframe](images/sections-3d.png) |
+
 ## 3D viewport controls
 
 - **Left-click + drag** — Rotate the view
@@ -150,7 +159,7 @@ pnpm test:watch   # Tests in watch mode
 pnpm preview      # Preview of the production build
 ```
 
-## MVP Limitations
+## Limitations
 
 - Bar-type elements only (3D frame) — no shells or plates
 - Linear static analysis only
