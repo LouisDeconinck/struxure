@@ -28,7 +28,7 @@ jobs:
 
       # No `version` input: pnpm/action-setup reads the `packageManager` field
       # pinned in package.json, so CI and contributors run the same pnpm.
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
 
       - uses: actions/setup-node@v7
         with:
