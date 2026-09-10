@@ -1,3 +1,4 @@
+import { useEscapeKey } from '../../hooks/use-escape-key';
 interface AboutDialogProps {
   onClose: () => void;
   /** Mobile uses `active:` variants; desktop uses `hover:`. */
@@ -8,13 +9,29 @@ export function AboutDialog({ onClose, variant = 'desktop' }: AboutDialogProps) 
   const linkHover = variant === 'mobile' ? 'active:text-accent' : 'hover:text-accent transition-colors';
   const buttonHover = variant === 'mobile' ? 'active:bg-slate-600' : 'hover:bg-slate-600 transition-colors';
 
+  useEscapeKey(onClose);
+
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50" onClick={onClose}>
-      <div className="bg-slate-900 border border-slate-700 rounded-2xl p-8 max-w-sm w-full mx-4 shadow-2xl text-center" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+      {/* Click-outside catcher. Keyboard users dismiss with Escape instead, so
+          it carries no accessible name and stays out of the tab order. */}
+      <button
+        type="button"
+        aria-hidden="true"
+        tabIndex={-1}
+        className="absolute inset-0 cursor-default"
+        onClick={onClose}
+      />
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="about-dialog-title"
+        className="relative bg-slate-900 border border-slate-700 rounded-2xl p-8 max-w-sm w-full mx-4 shadow-2xl text-center"
+      >
         <div className="w-16 h-16 bg-accent rounded-xl flex items-center justify-center mx-auto mb-4 p-2">
           <img src={`${import.meta.env.BASE_URL}favicon_white.svg`} alt="Struxure" className="w-full h-full" />
         </div>
-        <h2 className="text-2xl font-bold text-white tracking-tight mb-1">STRUXURE</h2>
+        <h2 id="about-dialog-title" className="text-2xl font-bold text-white tracking-tight mb-1">STRUXURE</h2>
         <p className="text-slate-400 text-sm mb-4">Structural FEA in the Browser</p>
         <div className="inline-block bg-slate-800 text-slate-300 text-sm font-mono px-3 py-1 rounded-lg mb-6">
           v{__APP_VERSION__}

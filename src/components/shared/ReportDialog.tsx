@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useEscapeKey } from '../../hooks/use-escape-key';
 
 interface ReportDialogProps {
   onClose: () => void;
@@ -6,6 +7,7 @@ interface ReportDialogProps {
 }
 
 export function ReportDialog({ onClose, onGenerate }: ReportDialogProps) {
+  useEscapeKey(onClose);
   const [projectName, setProjectName] = useState('Structural Analysis');
   const [engineer, setEngineer] = useState('');
   const [description, setDescription] = useState('');
@@ -21,14 +23,14 @@ export function ReportDialog({ onClose, onGenerate }: ReportDialogProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center" role="dialog" aria-modal="true" aria-labelledby="report-dialog-title">
       <div className="bg-slate-800 rounded-xl shadow-2xl border border-slate-600 p-6 w-[420px] max-w-[90vw]">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 bg-accent/20 rounded-lg flex items-center justify-center">
             <span className="material-icons-round text-accent" style={{ fontSize: '24px' }}>picture_as_pdf</span>
           </div>
           <div>
-            <h3 className="text-lg font-bold text-white">Export PDF Report</h3>
+            <h3 id="report-dialog-title" className="text-lg font-bold text-white">Export PDF Report</h3>
             <p className="text-xs text-slate-400">Generate a professional analysis report</p>
           </div>
         </div>

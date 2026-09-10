@@ -317,6 +317,9 @@ function TabButton({ label, icon, active, onClick, disabled }: {
 }) {
   return (
     <button
+      type="button"
+      role="tab"
+      aria-selected={active}
       onClick={onClick}
       disabled={disabled}
       className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-semibold transition-colors
@@ -333,6 +336,8 @@ function ToggleChip({ label, icon, active, onClick }: {
 }) {
   return (
     <button
+      type="button"
+      aria-pressed={active}
       onClick={onClick}
       className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-colors
         ${active

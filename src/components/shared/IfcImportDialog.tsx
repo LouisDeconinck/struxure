@@ -1,4 +1,5 @@
 import type { IfcImportResult } from '../../utils/ifc-import';
+import { useEscapeKey } from '../../hooks/use-escape-key';
 
 interface IfcImportDialogProps {
   result: IfcImportResult;
@@ -8,17 +9,18 @@ interface IfcImportDialogProps {
 }
 
 export function IfcImportDialog({ result, fileName, onConfirm, onCancel }: IfcImportDialogProps) {
+  useEscapeKey(onCancel);
   const { stats } = result;
 
   return (
-    <div className="absolute inset-0 z-50 bg-black/60 flex items-center justify-center">
+    <div className="absolute inset-0 z-50 bg-black/60 flex items-center justify-center" role="dialog" aria-modal="true" aria-labelledby="ifc-dialog-title">
       <div className="bg-slate-800 rounded-xl shadow-2xl border border-slate-600 p-6 w-[420px] max-w-[90vw]">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 bg-emerald-500/20 rounded-lg flex items-center justify-center">
             <span className="material-icons-round text-emerald-400" style={{ fontSize: '24px' }}>apartment</span>
           </div>
           <div>
-            <h3 className="text-lg font-bold text-white">Import IFC</h3>
+            <h3 id="ifc-dialog-title" className="text-lg font-bold text-white">Import IFC</h3>
             <p className="text-xs text-slate-400 truncate max-w-[300px]">{fileName}</p>
           </div>
         </div>
