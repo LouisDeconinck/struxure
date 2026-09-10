@@ -1,5 +1,28 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- **ACI 318 minimum flexural steel was 1000x too large.** `As,min` applied a
+  stray factor of 1000 to the `200/fy * bw * d` expression, so every concrete
+  beam was reported as failing with an impossible required steel area.
+- **ACI 318 concrete shear capacity was ~31.6x too high.** `Vc` used
+  `2*sqrt(f'c)` with f'c in ksi, but the ACI expression takes psi and returns
+  pounds. Concrete shear effectively never governed. Same fix applied to the
+  `Vs,max` limit.
+- Analysis and design results are no longer left on screen after the model is
+  edited; any structural change now invalidates them (#3).
+
+### Added
+
+- Validation test suites for AISC 360 and ACI 318, checked against AISC Manual
+  (15th ed.) tables and hand-worked ACI 318-19 provisions.
+- `docs/validation.md`, stating what is verified against an independent
+  reference and what is not.
+- Social preview image and Open Graph / Twitter Card metadata.
+- Screenshots in the README and quick-start guide.
+
 ## v0.3.0
 - Apache-2.0 license, NOTICE, SECURITY policy and Code of Conduct
 - CONTRIBUTING guide with a validation-test requirement for solver and design changes

@@ -27,6 +27,9 @@ template, press Analyze.
 > professional engineer. It is provided without warranty of any kind — see
 > [LICENSE](LICENSE) and [NOTICE](NOTICE).
 
+[**docs/validation.md**](docs/validation.md) states exactly which checks are
+verified against published tables and which are not.
+
 ## Features
 
 ### Modeling

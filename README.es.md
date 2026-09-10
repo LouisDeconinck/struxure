@@ -27,6 +27,9 @@ una plantilla y presiona Analyze.
 > ingeniero profesional colegiado. Se entrega sin garantía de ningún tipo —
 > consulta [LICENSE](LICENSE) y [NOTICE](NOTICE).
 
+[**docs/validation.md**](docs/validation.md) indica exactamente que
+verificaciones estan contrastadas contra tablas publicadas y cuales no.
+
 ## Caracteristicas
 
 ### Modelado

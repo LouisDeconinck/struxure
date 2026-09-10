@@ -75,6 +75,10 @@ structures. A change that silently shifts a result by a few percent is
 worse than one that crashes — a crash gets noticed immediately, a quiet
 drift in a moment or a D/C ratio does not.
 
+See [docs/validation.md](docs/validation.md) for what is currently validated
+and what is not; `src/design/__tests__/` holds worked examples for both AISC 360
+and ACI 318.
+
 ### What a validation test looks like
 
 It states its source in a comment and asserts against it with an explicit

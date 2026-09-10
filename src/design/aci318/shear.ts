@@ -23,10 +23,10 @@ export function checkShear(
   const h = section.h || section.d || 24;
   const d = h - 2.5; // effective depth
 
-  // Concrete shear capacity: Vc = 2√f'c * bw * d (in kips, f'c in ksi)
-  // Note: ACI uses f'c in psi traditionally, but we're in ksi
-  // Vc = 2 * √(f'c * 1000) * bw * d / 1000 = 2 * √(f'c) * √1000 * bw * d / 1000
-  const Vc = 2 * Math.sqrt(fc) * bw * d; // kips (when fc in ksi and dimensions in inches)
+  // Concrete shear capacity, ACI 318-19 Eq. 22.5.5.1: Vc = 2*lambda*sqrt(f'c)*bw*d.
+  // That expression takes f'c in psi and returns pounds, so f'c is scaled up
+  // from ksi and the result scaled back down to kips.
+  const Vc = (2 * Math.sqrt(fc * 1000) * bw * d) / 1000; // kips
 
   const phiVc = phi * Vc;
 
@@ -38,8 +38,8 @@ export function checkShear(
   // Required Vs = Vu/φ - Vc
   const Vs_required = Math.abs(Vu) / phi - Vc;
 
-  // Maximum Vs limit: Vs_max = 8√f'c * bw * d
-  const Vs_max = 8 * Math.sqrt(fc) * bw * d;
+  // Maximum Vs limit, ACI 318-19 22.5.1.2: Vs_max = 8*sqrt(f'c)*bw*d, same units.
+  const Vs_max = (8 * Math.sqrt(fc * 1000) * bw * d) / 1000;
 
   if (Vs_required > Vs_max) {
     return { ratio: 10, AvRequired: 999 };

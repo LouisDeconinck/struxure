@@ -231,8 +231,12 @@ type/scale, render mode, grid, labels, animation controls).
 ## Testing
 
 Tests live alongside the code they cover, in `__tests__/` directories:
-`src/core/__tests__/`, `src/data/__tests__/`, `src/utils/__tests__/`, and
+`src/core/__tests__/`, `src/design/__tests__/`, `src/store/__tests__/`,
+`src/data/__tests__/`, `src/utils/__tests__/`, and
 `src/components/viewport/__tests__/`. All run under Vitest via `pnpm test`.
+
+[docs/validation.md](validation.md) records what has actually been checked
+against an independent reference and what has not.
 
 A validation test — required for any change to `src/core/` or
 `src/design/`, see [CONTRIBUTING.md](../CONTRIBUTING.md#the-rule-that-matters-most)
