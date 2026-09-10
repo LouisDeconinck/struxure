@@ -1,0 +1,28 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      # One PR per family keeps review manageable and avoids peer-dep churn
+      # from bumping react/three and their typings out of step.
+      react:
+        patterns: ['react', 'react-dom', '@types/react', '@types/react-dom']
+      three:
+        patterns: ['three', '@types/three', '@react-three/*']
+      dev-tooling:
+        dependency-type: development
+        patterns: ['eslint*', '@eslint/*', 'typescript-eslint', 'vitest', 'vite', '@vitejs/*']
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: ci

@@ -1,18 +1,34 @@
+<div align="center">
+
 # Struxure
+
+**3D structural finite element analysis with AISC 360 and ACI 318 design checks — running entirely in your browser.**
+
+[**▶ Try it live**](https://alvarotech.dev/struxure/) &nbsp;·&nbsp;
+[Quick start](docs/quick-start.md) &nbsp;·&nbsp;
+[Architecture](docs/ARCHITECTURE.md) &nbsp;·&nbsp;
+[Roadmap](ROADMAP.md) &nbsp;·&nbsp;
+[Leer en Espanol](README.es.md)
 
 [![CI](https://github.com/tiveor/struxure/actions/workflows/ci.yml/badge.svg)](https://github.com/tiveor/struxure/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-3D Structural Finite Element Analysis (FEA) engine with integrated design checks, running 100% in the browser.
+![Struxure analysing a three-storey steel frame, with elements coloured by demand/capacity ratio](docs/images/hero.png)
 
-Struxure lets you model, analyze, and verify bar-type structures (beams, columns, braces, trusses) with no backend or software installation required.
+</div>
+
+Model, analyze and verify bar-type structures — beams, columns, braces and
+trusses — with no backend, no installation and no account. Open the link, load a
+template, press Analyze.
 
 > **For education and preliminary design only.** Struxure's results are not
 > independently verified and are not a substitute for review by a licensed
 > professional engineer. It is provided without warranty of any kind — see
 > [LICENSE](LICENSE) and [NOTICE](NOTICE).
 
-[Leer en Espanol](README.es.md)
+[**docs/validation.md**](docs/validation.md) states exactly which checks are
+verified against published tables and which are not.
 
 ## Features
 
@@ -35,6 +51,11 @@ Struxure lets you model, analyze, and verify bar-type structures (beams, columns
 - **Animated deformed shape** — Oscillate, pulse, or progressive animation modes with speed control
 - **3D section rendering** — Toggle between wireframe and 3D extruded section views
 - **Viewport controls** — Orbit, pan, zoom extents, and grid toggle
+
+| | |
+|---|---|
+| ![Bending moment diagram with values on a two-storey portal frame](docs/images/force-diagrams.png) | ![Warren truss rendered with extruded 3D sections](docs/images/sections-3d.png) |
+| Moment diagrams with values, at adjustable scale | Extruded 3D section rendering |
 
 ### Design Checks
 - **AISC 360 (Steel)** — Tension (Ch. D), Compression (Ch. E), Flexure (Ch. F), Combined P-M interaction (Ch. H)
@@ -59,6 +80,8 @@ Struxure lets you model, analyze, and verify bar-type structures (beams, columns
 | 3D Building | 3D | 2x2 bay, 3-story space frame with wind |
 | **Eiffel Tower** | 3D | 25-node, 88-element lattice tower with X-bracing |
 | **Cristo de la Concordia** | 3D | 35-node statue frame with arms — Cochabamba, Bolivia |
+
+![The Cristo de la Concordia template rendered as a braced 3D frame with extruded sections](docs/images/cristo.png)
 
 ## Stack
 
@@ -97,7 +120,6 @@ pnpm test         # Run tests
 pnpm test:watch   # Tests in watch mode
 pnpm lint         # Linting with ESLint
 pnpm preview      # Preview production build
-pnpm deploy       # Build and deploy to GitHub Pages
 ```
 
 ## Architecture
@@ -126,6 +148,7 @@ src/
 │   └── mobile/     # Mobile viewer and install prompt
 ├── store/          # Global state (Zustand)
 └── utils/          # Templates, export, DXF/IFC import, color ramp, animation
+    └── run-analysis.ts          # Single entry point: solve, fall back, run design checks
 ```
 
 ## Analytics

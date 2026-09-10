@@ -1,4 +1,6 @@
-const CACHE_NAME = 'struxure-v1';
+// __SW_VERSION__ is replaced at build time (vite/sw-version-plugin.ts) so each
+// release gets its own cache and the activate handler evicts the previous one.
+const CACHE_NAME = 'struxure-__SW_VERSION__';
 
 self.addEventListener('install', () => {
   self.skipWaiting();

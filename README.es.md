@@ -1,18 +1,34 @@
+<div align="center">
+
 # Struxure
+
+**Analisis estructural por elementos finitos (FEA) 3D con verificaciones AISC 360 y ACI 318 — ejecutado enteramente en tu navegador.**
+
+[**▶ Probarlo en vivo**](https://alvarotech.dev/struxure/) &nbsp;·&nbsp;
+[Inicio rapido](docs/quick-start.md) &nbsp;·&nbsp;
+[Arquitectura](docs/ARCHITECTURE.md) &nbsp;·&nbsp;
+[Roadmap](ROADMAP.md) &nbsp;·&nbsp;
+[Read in English](README.md)
 
 [![CI](https://github.com/tiveor/struxure/actions/workflows/ci.yml/badge.svg)](https://github.com/tiveor/struxure/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-Motor de Analisis Estructural por Elementos Finitos (FEA) 3D con diseno integrado, ejecutado 100% en el navegador.
+![Struxure analizando un portico de acero de tres niveles, con los elementos coloreados por relacion demanda/capacidad](docs/images/hero.png)
 
-Struxure permite modelar, analizar y verificar estructuras tipo barra (vigas, columnas, diagonales, armaduras) sin necesidad de backend ni instalacion de software.
+</div>
+
+Modela, analiza y verifica estructuras tipo barra — vigas, columnas, diagonales
+y armaduras — sin backend, sin instalacion y sin cuenta. Abre el enlace, carga
+una plantilla y presiona Analyze.
 
 > **Solo para uso educativo y de anteproyecto.** Los resultados de Struxure no
 > están verificados de forma independiente y no sustituyen la revisión de un
 > ingeniero profesional colegiado. Se entrega sin garantía de ningún tipo —
 > consulta [LICENSE](LICENSE) y [NOTICE](NOTICE).
 
-[Read in English](README.md)
+[**docs/validation.md**](docs/validation.md) indica exactamente que
+verificaciones estan contrastadas contra tablas publicadas y cuales no.
 
 ## Caracteristicas
 
@@ -35,6 +51,11 @@ Struxure permite modelar, analizar y verificar estructuras tipo barra (vigas, co
 - **Forma deformada animada** — Modos de animacion: oscilar, pulso o progresivo con control de velocidad
 - **Renderizado 3D de secciones** — Alterna entre vista de alambres y secciones 3D extruidas
 - **Controles de viewport** — Orbitar, panear, zoom extents y toggle de grilla
+
+| | |
+|---|---|
+| ![Diagrama de momento flector con valores sobre un portico de dos niveles](docs/images/force-diagrams.png) | ![Armadura Warren renderizada con secciones 3D extruidas](docs/images/sections-3d.png) |
+| Diagramas de momento con valores, a escala ajustable | Renderizado de secciones 3D extruidas |
 
 ### Verificacion de Diseno
 - **AISC 360 (Acero)** — Tension (Cap. D), Compresion (Cap. E), Flexion (Cap. F), Interaccion P-M (Cap. H)
@@ -59,6 +80,8 @@ Struxure permite modelar, analizar y verificar estructuras tipo barra (vigas, co
 | 3D Building | 3D | Marco espacial 2x2 bahias, 3 pisos con viento |
 | **Eiffel Tower** | 3D | Torre lattice de 25 nodos y 88 elementos con X-bracing |
 | **Cristo de la Concordia** | 3D | Marco de estatua de 35 nodos con brazos — Cochabamba, Bolivia |
+
+![La plantilla Cristo de la Concordia renderizada como un marco 3D arriostrado con secciones extruidas](docs/images/cristo.png)
 
 ## Stack
 
@@ -97,7 +120,6 @@ pnpm test         # Ejecutar tests
 pnpm test:watch   # Tests en modo watch
 pnpm lint         # Linting con ESLint
 pnpm preview      # Preview del build
-pnpm deploy       # Build y deploy a GitHub Pages
 ```
 
 ## Arquitectura
@@ -126,6 +148,7 @@ src/
 │   └── mobile/     # Visor movil y aviso de instalacion
 ├── store/          # Estado global (Zustand)
 └── utils/          # Plantillas, exportacion, importacion DXF/IFC, color ramp, animacion
+    └── run-analysis.ts          # Punto unico: resolver, fallback y verificaciones de diseno
 ```
 
 ## Analítica

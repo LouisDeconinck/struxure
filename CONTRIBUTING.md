@@ -75,6 +75,16 @@ structures. A change that silently shifts a result by a few percent is
 worse than one that crashes — a crash gets noticed immediately, a quiet
 drift in a moment or a D/C ratio does not.
 
+See [docs/validation.md](docs/validation.md) for what is currently validated
+and what is not; `src/design/__tests__/` holds worked examples for both AISC 360
+and ACI 318.
+
+Component tests are available too: add `// @vitest-environment jsdom` as the
+first line of the file and use `@testing-library/react`. The default
+environment stays `node` so the solver, design and store suites are not slowed
+down by a DOM they do not use.
+`src/components/shared/__tests__/AboutDialog.test.tsx` is a worked example.
+
 ### What a validation test looks like
 
 It states its source in a comment and asserts against it with an explicit

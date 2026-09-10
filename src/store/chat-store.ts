@@ -17,7 +17,7 @@ export interface AiSettings {
   localEndpoint: string;
   localModelName: string;
   localTemperature: number;
-  // Online (Claude API — future)
+  // Online (any OpenAI-compatible endpoint; defaults to OpenRouter)
   onlineEndpoint: string;
   onlineApiKey: string;
   onlineModel: string;

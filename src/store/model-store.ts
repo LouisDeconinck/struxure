@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { useResultsStore } from './results-store';
 import type {
   StructuralNode,
   Material,
@@ -214,3 +215,31 @@ export const useModelStore = create<ModelState>((set, get) => ({
       distributedLoads: [],
     }),
 }));
+
+/**
+ * Analysis results only ever describe the exact model they were computed from,
+ * so any structural edit invalidates them.
+ *
+ * The rule lives in a single subscription rather than in each CRUD action: the
+ * store has more than twenty mutators and every future one would otherwise have
+ * to remember to call clearResults(). Comparing array identity is enough because
+ * every mutator replaces the arrays it touches instead of mutating them in place.
+ */
+useModelStore.subscribe((state, prev) => {
+  const modelUnchanged =
+    state.nodes === prev.nodes &&
+    state.elements === prev.elements &&
+    state.materials === prev.materials &&
+    state.sections === prev.sections &&
+    state.supports === prev.supports &&
+    state.nodalLoads === prev.nodalLoads &&
+    state.distributedLoads === prev.distributedLoads;
+  if (modelUnchanged) return;
+
+  const results = useResultsStore.getState();
+  // Only clear what a run actually produced. Guarding on these flags leaves an
+  // in-flight solve alone, since clearResults() would also reset isSolving.
+  if (results.isAnalyzed || results.isDesigned || results.analysisError !== null) {
+    results.clearResults();
+  }
+});

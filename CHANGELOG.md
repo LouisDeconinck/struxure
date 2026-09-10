@@ -1,5 +1,47 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- **ACI 318 minimum flexural steel was 1000x too large.** `As,min` applied a
+  stray factor of 1000 to the `200/fy * bw * d` expression, so every concrete
+  beam was reported as failing with an impossible required steel area.
+- **ACI 318 concrete shear capacity was ~31.6x too high.** `Vc` used
+  `2*sqrt(f'c)` with f'c in ksi, but the ACI expression takes psi and returns
+  pounds. Concrete shear effectively never governed. Same fix applied to the
+  `Vs,max` limit.
+- Analysis and design results are no longer left on screen after the model is
+  edited; any structural change now invalidates them (#3).
+
+### Added
+
+- Validation test suites for AISC 360 and ACI 318, checked against AISC Manual
+  (15th ed.) tables and hand-worked ACI 318-19 provisions.
+- `docs/validation.md`, stating what is verified against an independent
+  reference and what is not.
+- Social preview image and Open Graph / Twitter Card metadata.
+- Screenshots in the README and quick-start guide.
+- Component tests: files opt into a DOM with `// @vitest-environment jsdom`
+  and render through `@testing-library/react`.
+- `eslint-plugin-jsx-a11y`, Dependabot, CodeQL scanning and CODEOWNERS.
+
+### Changed
+
+- Modal dialogs are announced as dialogs, named by their heading, and close on
+  Escape; icon-only viewport controls and mobile toggles now expose their name
+  and state.
+- The analysis pipeline lives in one `runAnalysis()` helper instead of five
+  near-identical copies, so failures are reported consistently (#6).
+
+### Fixed (continued)
+
+- The service worker cache is versioned per release; it previously used a fixed
+  name that its own eviction logic could never clear, so returning visitors kept
+  being served a stale build.
+- Removed the `deploy` script, which invoked a `deploy.sh` absent from this
+  repository.
+
 ## v0.3.0
 - Apache-2.0 license, NOTICE, SECURITY policy and Code of Conduct
 - CONTRIBUTING guide with a validation-test requirement for solver and design changes

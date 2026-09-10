@@ -38,10 +38,12 @@ export function checkFlexure(
     AsRequired = (0.85 * fc * b * d / fy) * (1 - Math.sqrt(discriminant));
   }
 
-  // Enforce minimum As (ACI 318-19 9.6.1.2)
+  // Enforce minimum As (ACI 318-19 9.6.1.2). Both expressions want f'c and fy
+  // in psi, hence the *1000 on each; the area itself is already in square
+  // inches, so no further scaling belongs here.
   const AsMin = Math.max(
     (3 * Math.sqrt(fc * 1000) / (fy * 1000)) * b * d,
-    200 / (fy * 1000) * b * d * 1000
+    (200 / (fy * 1000)) * b * d
   );
   AsRequired = Math.max(AsRequired, AsMin);
 

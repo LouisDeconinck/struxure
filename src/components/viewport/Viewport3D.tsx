@@ -303,6 +303,9 @@ function ToolbarIconButton({ icon, title, onClick, active }: { icon: string; tit
   return (
     <Tooltip label={title} position="right">
       <button
+        type="button"
+        aria-label={title}
+        aria-pressed={active}
         className={`p-2 hover:bg-slate-700 transition-colors cursor-pointer ${
           active ? 'text-accent' : 'text-slate-300'
         }`}

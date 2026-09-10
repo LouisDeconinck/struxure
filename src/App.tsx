@@ -9,11 +9,8 @@ import { DxfDropZone } from './components/shared/DxfDropZone';
 import { MobileGate } from './components/shared/MobileGate';
 import { AiSidebar } from './components/chat/AiSidebar';
 import { useModelStore } from './store/model-store';
-import { useResultsStore } from './store/results-store';
 import { TEMPLATES, getTemplateFromURL } from './utils/templates';
-import { SolverManager } from './core/solver-manager';
-import { solveModel } from './core/solver';
-import { runDesign } from './design/design-runner';
+import { runAnalysis } from './utils/run-analysis';
 
 function App() {
   const loadModel = useModelStore((s) => s.loadModel);
@@ -26,28 +23,9 @@ function App() {
     loadModel(tpl.load());
     setTimeout(() => window.dispatchEvent(new Event('zoom-extents')), 100);
 
-    // Auto-analyze when loaded via URL param
+    // Auto-analyze when loaded via URL param, once the canvas has rendered.
     if (urlTpl) {
-      const autoAnalyze = async () => {
-        const model = useModelStore.getState().getModel();
-        const { setAnalysisResults, setDesignResults, setSolving } = useResultsStore.getState();
-        setSolving(true);
-        try {
-          const manager = new SolverManager();
-          const results = await manager.solve(model);
-          setAnalysisResults(results);
-          try { setDesignResults(runDesign(model, results)); } catch { /* optional */ }
-        } catch {
-          try {
-            const results = solveModel(model);
-            setAnalysisResults(results);
-            try { setDesignResults(runDesign(model, results)); } catch { /* optional */ }
-          } catch { /* failed */ }
-        } finally {
-          setSolving(false);
-        }
-      };
-      setTimeout(autoAnalyze, 300);
+      setTimeout(() => { void runAnalysis(useModelStore.getState().getModel()); }, 300);
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   return (
