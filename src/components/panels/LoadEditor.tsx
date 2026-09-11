@@ -100,45 +100,45 @@ export function LoadEditor() {
         {activeTab === 'nodal' && (
           <div className="space-y-3">
             <div>
-              <label className={labelCls}>Node</label>
-              <select className={inputCls} value={nodeId} onChange={(e) => setNodeId(e.target.value)}>
+              <label className={labelCls} htmlFor="load-node">Node</label>
+              <select id="load-node" className={inputCls} value={nodeId} onChange={(e) => setNodeId(e.target.value)}>
                 <option value="">Select...</option>
                 {nodes.map((n) => <option key={n.id} value={n.id}>{n.id}</option>)}
               </select>
             </div>
 
             <div>
-              <label className={labelCls}>Forces ({unitLabel('force', unitSystem)})</label>
+              <div className={labelCls}>Forces ({unitLabel('force', unitSystem)})</div>
               <div className="grid grid-cols-3 gap-2 mt-1">
                 <div>
-                  <label className={labelCls}>Fx</label>
-                  <input type="number" className={numCls} value={fx} onChange={(e) => setFx(e.target.value)} />
+                  <label className={labelCls} htmlFor="load-fx">Fx</label>
+                  <input id="load-fx" type="number" className={numCls} value={fx} onChange={(e) => setFx(e.target.value)} />
                 </div>
                 <div>
-                  <label className={labelCls}>Fy</label>
-                  <input type="number" className={numCls} value={fy} onChange={(e) => setFy(e.target.value)} />
+                  <label className={labelCls} htmlFor="load-fy">Fy</label>
+                  <input id="load-fy" type="number" className={numCls} value={fy} onChange={(e) => setFy(e.target.value)} />
                 </div>
                 <div>
-                  <label className={labelCls}>Fz</label>
-                  <input type="number" className={numCls} value={fz} onChange={(e) => setFz(e.target.value)} />
+                  <label className={labelCls} htmlFor="load-fz">Fz</label>
+                  <input id="load-fz" type="number" className={numCls} value={fz} onChange={(e) => setFz(e.target.value)} />
                 </div>
               </div>
             </div>
 
             <div>
-              <label className={labelCls}>Moments ({unitLabel('moment', unitSystem)})</label>
+              <div className={labelCls}>Moments ({unitLabel('moment', unitSystem)})</div>
               <div className="grid grid-cols-3 gap-2 mt-1">
                 <div>
-                  <label className={labelCls}>Mx</label>
-                  <input type="number" className={numCls} value={mx} onChange={(e) => setMx(e.target.value)} />
+                  <label className={labelCls} htmlFor="load-mx">Mx</label>
+                  <input id="load-mx" type="number" className={numCls} value={mx} onChange={(e) => setMx(e.target.value)} />
                 </div>
                 <div>
-                  <label className={labelCls}>My</label>
-                  <input type="number" className={numCls} value={my} onChange={(e) => setMy(e.target.value)} />
+                  <label className={labelCls} htmlFor="load-my">My</label>
+                  <input id="load-my" type="number" className={numCls} value={my} onChange={(e) => setMy(e.target.value)} />
                 </div>
                 <div>
-                  <label className={labelCls}>Mz</label>
-                  <input type="number" className={numCls} value={mz} onChange={(e) => setMz(e.target.value)} />
+                  <label className={labelCls} htmlFor="load-mz">Mz</label>
+                  <input id="load-mz" type="number" className={numCls} value={mz} onChange={(e) => setMz(e.target.value)} />
                 </div>
               </div>
             </div>
@@ -156,8 +156,8 @@ export function LoadEditor() {
         {activeTab === 'distributed' && (
           <div className="space-y-3">
             <div>
-              <label className={labelCls}>Element</label>
-              <select className={inputCls} value={elemId} onChange={(e) => setElemId(e.target.value)}>
+              <label className={labelCls} htmlFor="load-element">Element</label>
+              <select id="load-element" className={inputCls} value={elemId} onChange={(e) => setElemId(e.target.value)}>
                 <option value="">Select...</option>
                 {elements.map((el) => (
                   <option key={el.id} value={el.id}>{el.id} ({el.nodeI} → {el.nodeJ})</option>
@@ -166,20 +166,20 @@ export function LoadEditor() {
             </div>
 
             <div>
-              <label className={labelCls}>Intensity ({unitLabel('forcePerLength', unitSystem)})</label>
+              <div className={labelCls}>Intensity ({unitLabel('forcePerLength', unitSystem)})</div>
               <p className="text-[9px] text-slate-600 mb-2">Local element coordinates. Negative Wy = gravity.</p>
               <div className="grid grid-cols-3 gap-2">
                 <div>
-                  <label className={labelCls}>Wx</label>
-                  <input type="number" className={numCls} value={wx} onChange={(e) => setWx(e.target.value)} step="any" />
+                  <label className={labelCls} htmlFor="load-wx">Wx</label>
+                  <input id="load-wx" type="number" className={numCls} value={wx} onChange={(e) => setWx(e.target.value)} step="any" />
                 </div>
                 <div>
-                  <label className={labelCls}>Wy</label>
-                  <input type="number" className={numCls} value={wy} onChange={(e) => setWy(e.target.value)} step="any" />
+                  <label className={labelCls} htmlFor="load-wy">Wy</label>
+                  <input id="load-wy" type="number" className={numCls} value={wy} onChange={(e) => setWy(e.target.value)} step="any" />
                 </div>
                 <div>
-                  <label className={labelCls}>Wz</label>
-                  <input type="number" className={numCls} value={wz} onChange={(e) => setWz(e.target.value)} step="any" />
+                  <label className={labelCls} htmlFor="load-wz">Wz</label>
+                  <input id="load-wz" type="number" className={numCls} value={wz} onChange={(e) => setWz(e.target.value)} step="any" />
                 </div>
               </div>
             </div>
