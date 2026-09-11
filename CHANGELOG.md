@@ -1,46 +1,67 @@
 # Changelog
 
-## [Unreleased]
+## v0.3.1
+
+The concrete design checks were wrong. Writing the validation tests that
+`CONTRIBUTING.md` has always required for `src/design/` surfaced two unit-scaling
+defects, both from ACI expressions that take f'c and fy in psi while models here
+carry f'c in ksi. **Any concrete result from v0.3.0 or earlier should be
+re-run.** The steel checks needed no correction.
 
 ### Fixed
 
 - **ACI 318 minimum flexural steel was 1000x too large.** `As,min` applied a
   stray factor of 1000 to the `200/fy * bw * d` expression, so every concrete
-  beam was reported as failing with an impossible required steel area.
+  beam was reported as failing with an impossible required steel area — 860 in²
+  on a 12x24.
 - **ACI 318 concrete shear capacity was ~31.6x too high.** `Vc` used
   `2*sqrt(f'c)` with f'c in ksi, but the ACI expression takes psi and returns
-  pounds. Concrete shear effectively never governed. Same fix applied to the
-  `Vs,max` limit.
+  pounds, dropping a factor of sqrt(1000). Concrete shear effectively never
+  governed: 500 kips on a 12x24 passed at D/C 0.65 against a real phi*Vc of
+  24.5 kips. The `Vs,max` limit had the same slip.
+- **The AI assistant matched providers by substring**, so an endpoint merely
+  containing `openrouter.ai` — `https://host.example.com/v1?note=openrouter.ai`,
+  or `https://openrouter.ai.example.com/v1` — was treated as OpenRouter, and the
+  user's API key was forwarded there for verification even when it belonged to a
+  different provider. All provider detection now compares the parsed hostname.
 - Analysis and design results are no longer left on screen after the model is
   edited; any structural change now invalidates them (#3).
+- The service worker cache is versioned per release. It previously used a fixed
+  name that its own eviction logic could never clear, so returning visitors kept
+  being served the previous build's assets.
+- Removed the `deploy` script, which invoked a `deploy.sh` absent from this
+  repository and so failed for everyone but the maintainer.
 
 ### Added
 
-- Validation test suites for AISC 360 and ACI 318, checked against AISC Manual
-  (15th ed.) tables and hand-worked ACI 318-19 provisions.
-- `docs/validation.md`, stating what is verified against an independent
-  reference and what is not.
-- Social preview image and Open Graph / Twitter Card metadata.
-- Screenshots in the README and quick-start guide.
-- Component tests: files opt into a DOM with `// @vitest-environment jsdom`
-  and render through `@testing-library/react`.
+- `docs/validation.md`, stating which checks are verified against a published
+  reference and which are not — including the caveat that the ACI column check
+  assumes 1% reinforcement rather than analysing the actual bars.
+- Validation suites for AISC 360 and ACI 318: tension, compression and flexure
+  against AISC Manual (15th ed.) Tables 5-1, 4-1 and 3-2, and ACI 318-19 §9.6.1.2,
+  §22.2 and Eq. 22.5.5.1 worked by hand. Reverting either concrete fix above now
+  fails 9 of the 20 ACI tests.
+- Screenshots and a hero animation of the app running, in the README and the
+  quick-start guide, and a live-demo link above the fold.
+- A social preview image, plus Open Graph, Twitter Card and canonical metadata —
+  links to the app previously rendered as bare text everywhere they were shared.
+- Component tests: a file opts into a DOM with `// @vitest-environment jsdom`
+  and renders through `@testing-library/react`. Previously impossible.
 - `eslint-plugin-jsx-a11y`, Dependabot, CodeQL scanning and CODEOWNERS.
 
 ### Changed
 
 - Modal dialogs are announced as dialogs, named by their heading, and close on
-  Escape; icon-only viewport controls and mobile toggles now expose their name
-  and state.
+  Escape; icon-only viewport controls and mobile tabs and toggles now expose
+  their name and selected state.
 - The analysis pipeline lives in one `runAnalysis()` helper instead of five
-  near-identical copies, so failures are reported consistently (#6).
+  near-identical copies, so a failure is reported the same way wherever it
+  happens (#6).
+- Dependencies: three.js 0.182 → 0.185, React 19.2.0 → 19.2.8, Vite 7 → 8,
+  ESLint 9 → 10, and the GitHub Actions used by CI. Vitest is held at 4 pending
+  an upstream jest-dom fix (#21).
 
-### Fixed (continued)
-
-- The service worker cache is versioned per release; it previously used a fixed
-  name that its own eviction logic could never clear, so returning visitors kept
-  being served a stale build.
-- Removed the `deploy` script, which invoked a `deploy.sh` absent from this
-  repository.
+Test suite: 248 → 345.
 
 ## v0.3.0
 - Apache-2.0 license, NOTICE, SECURITY policy and Code of Conduct
