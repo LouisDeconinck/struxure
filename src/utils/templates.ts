@@ -646,7 +646,7 @@ function loadEiffelTower(): StructuralModel {
       nodalLoads.push(pLoad(`W${lIdCounter++}`, `${corners[c]}${lvl}`, 0, 3));
     }
   }
-  nodalLoads.push(pLoad(`W${lIdCounter++}`, 'TOP', 0, 5));
+  nodalLoads.push(pLoad(`W${lIdCounter}`, 'TOP', 0, 5));
 
   return {
     nodes,
@@ -842,7 +842,7 @@ function loadCristoConcordia(): StructuralModel {
       nodalLoads.push(pLoad(`W${lId++}`, `${corners[c]}${lvl}`, 0, 2));
     }
   }
-  nodalLoads.push(pLoad(`W${lId++}`, 'TOP', 0, 4));
+  nodalLoads.push(pLoad(`W${lId}`, 'TOP', 0, 4));
 
   return {
     nodes,
