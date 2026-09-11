@@ -1,3 +1,5 @@
+import { isProviderHost } from './endpoint-host';
+
 export interface ChatCompletionOptions {
   messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>;
   endpoint: string;
@@ -138,7 +140,7 @@ export async function testConnection(endpoint: string, apiKey?: string): Promise
 
       // OpenRouter's /models endpoint is public — a 200 doesn't prove the key is valid.
       // Verify the key with their auth endpoint.
-      if (apiKey && endpoint.includes('openrouter.ai')) {
+      if (apiKey && isProviderHost(endpoint, 'openrouter.ai')) {
         try {
           const authRes = await fetch('https://openrouter.ai/api/v1/auth/key', {
             headers: { 'Authorization': `Bearer ${apiKey}` },
