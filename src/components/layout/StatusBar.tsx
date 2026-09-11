@@ -80,18 +80,29 @@ export function StatusBar() {
 
         {/* Unit switcher */}
         <span className="relative">
-          <span
-            className="flex items-center gap-1 cursor-pointer hover:text-slate-300 transition-colors"
+          <button
+            type="button"
+            className="flex items-center gap-1 cursor-pointer hover:text-slate-300 transition-colors bg-transparent border-0 p-0 text-inherit font-inherit"
             onClick={() => setShowUnits(!showUnits)}
+            aria-expanded={showUnits}
+            aria-haspopup="true"
           >
             <span className="material-icons-round" style={{ fontSize: '14px' }}>straighten</span>
             Units: {systemLabel(unitSystem)}
             <span className="material-icons-round" style={{ fontSize: '12px' }}>
               {showUnits ? 'expand_less' : 'expand_more'}
             </span>
-          </span>
+          </button>
           {showUnits && (
-            <div className="fixed inset-0 z-50" onClick={() => setShowUnits(false)}>
+            <>
+              <button
+                type="button"
+                className="fixed inset-0 z-50"
+                aria-label="Close units menu"
+                aria-hidden="true"
+                tabIndex={-1}
+                onClick={() => setShowUnits(false)}
+              />
               <div
                 className="absolute bottom-10 left-0 bg-slate-900 border border-slate-700 rounded-lg shadow-2xl p-1 w-56"
                 style={{ left: 'var(--unit-popup-left)' }}
@@ -105,7 +116,6 @@ export function StatusBar() {
                     }
                   }
                 }}
-                onClick={(e) => e.stopPropagation()}
               >
                 {UNIT_OPTIONS.map((opt) => (
                   <button
@@ -130,25 +140,36 @@ export function StatusBar() {
                   </button>
                 ))}
               </div>
-            </div>
+            </>
           )}
         </span>
       </div>
       <div className="flex items-center gap-4">
         {/* UI Theme picker */}
         <span className="relative">
-          <span
-            className="flex items-center gap-1 cursor-pointer hover:text-slate-300 transition-colors"
+          <button
+            type="button"
+            className="flex items-center gap-1 cursor-pointer hover:text-slate-300 transition-colors bg-transparent border-0 p-0 text-inherit font-inherit"
             onClick={() => setShowTheme(!showTheme)}
+            aria-expanded={showTheme}
+            aria-haspopup="true"
           >
             <span className="material-icons-round" style={{ fontSize: '14px' }}>palette</span>
             UI Theme: {THEME_OPTIONS.find((t) => t.key === theme)?.label ?? 'Midnight'}
             <span className="material-icons-round" style={{ fontSize: '12px' }}>
               {showTheme ? 'expand_less' : 'expand_more'}
             </span>
-          </span>
+          </button>
           {showTheme && (
-            <div className="fixed inset-0 z-50" onClick={() => setShowTheme(false)}>
+            <>
+              <button
+                type="button"
+                className="fixed inset-0 z-50"
+                aria-label="Close theme menu"
+                aria-hidden="true"
+                tabIndex={-1}
+                onClick={() => setShowTheme(false)}
+              />
               <div
                 className="absolute bottom-10 right-0 bg-slate-900 border border-slate-700 rounded-lg shadow-2xl p-1 w-48"
                 ref={(el) => {
@@ -162,7 +183,6 @@ export function StatusBar() {
                     }
                   }
                 }}
-                onClick={(e) => e.stopPropagation()}
               >
                 {THEME_OPTIONS.map((opt) => (
                   <button
@@ -188,24 +208,35 @@ export function StatusBar() {
                   </button>
                 ))}
               </div>
-            </div>
+            </>
           )}
         </span>
 
         {/* 3D Canvas theme picker */}
         <span className="relative">
-          <span
-            className="flex items-center gap-1 cursor-pointer hover:text-slate-300 transition-colors"
+          <button
+            type="button"
+            className="flex items-center gap-1 cursor-pointer hover:text-slate-300 transition-colors bg-transparent border-0 p-0 text-inherit font-inherit"
             onClick={() => setShowCanvas(!showCanvas)}
+            aria-expanded={showCanvas}
+            aria-haspopup="true"
           >
             <span className="material-icons-round" style={{ fontSize: '14px' }}>view_in_ar</span>
             3D: {CANVAS_THEMES[canvasTheme].label}
             <span className="material-icons-round" style={{ fontSize: '12px' }}>
               {showCanvas ? 'expand_less' : 'expand_more'}
             </span>
-          </span>
+          </button>
           {showCanvas && (
-            <div className="fixed inset-0 z-50" onClick={() => setShowCanvas(false)}>
+            <>
+              <button
+                type="button"
+                className="fixed inset-0 z-50"
+                aria-label="Close canvas theme menu"
+                aria-hidden="true"
+                tabIndex={-1}
+                onClick={() => setShowCanvas(false)}
+              />
               <div
                 className="absolute bottom-10 right-0 bg-slate-900 border border-slate-700 rounded-lg shadow-2xl p-1 w-48"
                 ref={(el) => {
@@ -219,7 +250,6 @@ export function StatusBar() {
                     }
                   }
                 }}
-                onClick={(e) => e.stopPropagation()}
               >
                 {CANVAS_OPTIONS.map((opt) => (
                   <button
@@ -245,7 +275,7 @@ export function StatusBar() {
                   </button>
                 ))}
               </div>
-            </div>
+            </>
           )}
         </span>
 
