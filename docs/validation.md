@@ -62,9 +62,13 @@ this test suite was first written:
   effectively never governed.
 
 If you touch `src/design/aci318/`, add a test that pins the absolute magnitude
-against a hand-worked value. A test that only asserts a ratio is self-consistent
-will not catch a scaling error, because the same wrong factor appears on both
-sides.
+against a hand-worked value.
+
+The trap is not the D/C ratio itself. Demand comes from the analysis and only
+the capacity carries the error, so a ratio built from an independent demand does
+surface a scaling mistake. The trap is deriving the expected value from the
+function under test: that puts the same wrong factor on both sides of the
+assertion, where it cancels and the test passes either way.
 
 ## Contributing a validation case
 
