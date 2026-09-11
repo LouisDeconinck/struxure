@@ -73,7 +73,7 @@ export async function generateReport(
   if (model.nodalLoads.length > 0 || model.distributedLoads.length > 0) {
     doc.addPage();
     y = addSectionHeader(doc, '6. APPLIED LOADS', margin);
-    y = addLoadTables(doc, model, margin, y);
+    addLoadTables(doc, model, margin, y);
   }
 
   // ─── Results (only if analyzed) ───────────────────────────────
