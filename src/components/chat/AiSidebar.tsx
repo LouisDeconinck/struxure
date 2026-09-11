@@ -10,6 +10,7 @@ import type { ConnectionTestResult } from '../../utils/ai-client';
 import { SYSTEM_PROMPT, buildUserMessage } from '../../utils/ai-system-prompt';
 import { newId } from '../../utils/id';
 import { extractAndValidateModel } from '../../utils/ai-model-validator';
+import { isProviderHost } from '../../utils/endpoint-host';
 
 const EXAMPLE_PROMPTS = [
   'Simple beam, 30ft span, 20 kip center load',
@@ -686,7 +687,7 @@ function getLocalGuideContent(): GuideContent {
 }
 
 function getProviderGuideContent(endpoint: string): GuideContent | null {
-  if (endpoint.includes('groq')) {
+  if (isProviderHost(endpoint, 'groq.com')) {
     return {
       icon: 'bolt', color: '#34d399', title: 'Groq Setup — Free, no credit card',
       steps: [
@@ -698,7 +699,7 @@ function getProviderGuideContent(endpoint: string): GuideContent | null {
       note: 'Free tier: 30 requests/min, 70B model included',
     };
   }
-  if (endpoint.includes('openrouter')) {
+  if (isProviderHost(endpoint, 'openrouter.ai')) {
     return {
       icon: 'hub', color: '#60a5fa', title: 'OpenRouter Setup',
       steps: [
@@ -710,7 +711,7 @@ function getProviderGuideContent(endpoint: string): GuideContent | null {
       note: 'Some free models available with rate limits',
     };
   }
-  if (endpoint.includes('openai.com')) {
+  if (isProviderHost(endpoint, 'openai.com')) {
     return {
       icon: 'auto_awesome', color: '#4ade80', title: 'OpenAI Setup',
       steps: [
