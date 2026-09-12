@@ -163,7 +163,8 @@ export async function exportResultsToIfc(
     lines.push(`#${placementId}=IFCLOCALPLACEMENT($,#${axisPlacementId});`);
 
     const memberId = id();
-    lines.push(`#${memberId}=IFCSTRUCTURALCURVEMEMBER('${generateGuid()}',#${ownerHistoryId},'${elem.id}','Element ${elem.id} (${elem.sectionId})',$,#${placementId},#${prodDefShapeId},.RIGID_JOINED_MEMBER.,$);`);
+    const sectionName = model.sections.find((s) => s.id === elem.sectionId)?.name ?? elem.sectionId;
+    lines.push(`#${memberId}=IFCSTRUCTURALCURVEMEMBER('${generateGuid()}',#${ownerHistoryId},'${elem.id}','Element ${elem.id} (${sectionName})',$,#${placementId},#${prodDefShapeId},.RIGID_JOINED_MEMBER.,$);`);
     memberIds.push(memberId);
 
     // Connect member to nodes
