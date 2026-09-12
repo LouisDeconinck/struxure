@@ -6,6 +6,8 @@ import type { Material, Section } from '../../core/types';
  * Flexural buckling about both axes. Uses effective length factor K = 1.0 (conservative).
  *
  * φ = 0.90 (LRFD)
+ *
+ * Returns { ratio, phiPn } — the D/C ratio and the design compressive strength.
  */
 export function checkCompression(
   Pu: number,         // Required axial compression (kips, positive = compression)
@@ -13,9 +15,7 @@ export function checkCompression(
   section: Section,
   Lx: number,         // Unbraced length about strong axis (in)
   Ly: number           // Unbraced length about weak axis (in)
-): number {
-  if (Pu <= 0) return 0; // No compression demand
-
+): { ratio: number; phiPn: number } {
   const E = material.E;
   const fy = material.fy || 50;
   const Ag = section.A;
@@ -48,5 +48,7 @@ export function checkCompression(
   const Pn = Fcr * Ag;
   const phiPn = phi * Pn;
 
-  return Pu / phiPn;
+  if (Pu <= 0) return { ratio: 0, phiPn }; // No compression demand
+
+  return { ratio: Pu / phiPn, phiPn };
 }

@@ -5,15 +5,15 @@ import type { Material, Section } from '../../core/types';
  *
  * Considers yielding (Mp) and lateral-torsional buckling (LTB).
  * φ = 0.90 (LRFD)
+ *
+ * Returns { ratio, phiMn } — the D/C ratio and the design flexural strength.
  */
 export function checkFlexure(
   Mu: number,         // Required moment (kip-in, absolute value)
   material: Material,
   section: Section,
   Lb: number           // Unbraced length (in)
-): number {
-  if (Math.abs(Mu) < 1e-10) return 0;
-
+): { ratio: number; phiMn: number } {
   const E = material.E;
   const fy = material.fy || 50;
   const phi = 0.90;
@@ -55,5 +55,8 @@ export function checkFlexure(
   }
 
   const phiMn = phi * Mn;
-  return Math.abs(Mu) / phiMn;
+
+  if (Math.abs(Mu) < 1e-10) return { ratio: 0, phiMn };
+
+  return { ratio: Math.abs(Mu) / phiMn, phiMn };
 }

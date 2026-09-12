@@ -11,14 +11,15 @@ import type { Material, Section } from '../../core/types';
  * - Balanced: approximate
  * - Pure bending: φMn (from flexure check)
  *
- * Returns D/C ratio for the column.
+ * Returns { ratio, phiPn } — the D/C ratio and the pure-compression
+ * endpoint of the interaction diagram, φPn0.
  */
 export function checkColumn(
   Pu: number,          // Required axial load (kips, positive = compression)
   Mu: number,          // Required moment (kip-in, absolute)
   material: Material,
   section: Section
-): number {
+): { ratio: number; phiPn: number } {
   const fc = material.fc || 4; // ksi
   const fy = 60; // Grade 60 rebar (ksi)
   const phi = 0.65; // Compression-controlled
@@ -55,7 +56,7 @@ export function checkColumn(
   const absP = Math.abs(Pu);
   const absM = Math.abs(Mu);
 
-  if (absP < 1e-10 && absM < 1e-10) return 0;
+  if (absP < 1e-10 && absM < 1e-10) return { ratio: 0, phiPn: phiPn0 };
 
   let ratio: number;
 
@@ -69,5 +70,5 @@ export function checkColumn(
     ratio = absP / Math.max(availableP, 1) + absM / phiMn0;
   }
 
-  return Math.min(ratio, 10);
+  return { ratio: Math.min(ratio, 10), phiPn: phiPn0 };
 }

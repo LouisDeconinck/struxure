@@ -9,14 +9,18 @@
  *     Pu/(2·φPn) + (Mux/(φMnx) + Muy/(φMny)) <= 1.0
  *
  * We use the D/C ratios already computed individually.
+ *
+ * Returns { ratio } — the interaction value, measured against the unity
+ * limit. Unlike the member checks there is no separate capacity to report:
+ * the interaction equation itself is the strength model.
  */
 export function checkCombined(
   axialRatio: number,   // Pu / φPn (from tension or compression check)
   flexureRatioX: number, // Mux / φMnx (strong axis bending)
   flexureRatioY: number = 0 // Muy / φMny (weak axis bending)
-): number {
+): { ratio: number } {
   if (axialRatio < 1e-10 && flexureRatioX < 1e-10 && flexureRatioY < 1e-10) {
-    return 0;
+    return { ratio: 0 };
   }
 
   let ratio: number;
@@ -29,5 +33,5 @@ export function checkCombined(
     ratio = axialRatio / 2 + (flexureRatioX + flexureRatioY);
   }
 
-  return ratio;
+  return { ratio };
 }

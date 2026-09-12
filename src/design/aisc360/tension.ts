@@ -6,20 +6,20 @@ import type { Material, Section } from '../../core/types';
  * Nominal strength: Pn = Fy * Ag (yielding on gross section)
  * φ = 0.90 (LRFD)
  *
- * Returns the D/C ratio for tension.
+ * Returns { ratio, phiPn } — the D/C ratio and the design tensile strength.
  */
 export function checkTension(
   Pu: number,   // Required axial tension (kips, positive = tension)
   material: Material,
   section: Section
-): number {
-  if (Pu <= 0) return 0; // No tension demand
-
+): { ratio: number; phiPn: number } {
   const fy = material.fy || 50;
   const Ag = section.A;
   const phi = 0.90;
   const Pn = fy * Ag;
   const phiPn = phi * Pn;
 
-  return Pu / phiPn;
+  if (Pu <= 0) return { ratio: 0, phiPn }; // No tension demand
+
+  return { ratio: Pu / phiPn, phiPn };
 }

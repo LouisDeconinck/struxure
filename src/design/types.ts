@@ -14,6 +14,8 @@ export interface SteelDesignResult extends DesignCheckResult {
     flexureRatio: number;
     combinedRatio: number;
     governingCheck: number;
+    phiPn: number;         // kips — design axial strength behind the governing axial ratio
+    phiMn: number;         // kip-in — design flexural strength
   };
 }
 
@@ -24,5 +26,8 @@ export interface ConcreteDesignResult extends DesignCheckResult {
     shearRatio: number;
     AsRequired: number;    // cm² of required steel
     AvRequired: number;    // cm²/m of required stirrups
+    phiPn: number;         // kips — column axial strength (0 when checked as a beam)
+    phiMn: number;         // kip-in — beam flexural strength (0 when checked as a column)
+    phiVn: number;         // kips — beam shear strength (0 when checked as a column)
   };
 }

@@ -27,17 +27,20 @@ export function designConcreteElement(
   const isColumn = Math.abs(axialForce) > 0.1 * fc * Ag;
 
   if (isColumn) {
-    const columnRatio = checkColumn(Math.abs(axialForce), Math.abs(moment), material, section);
+    const columnResult = checkColumn(Math.abs(axialForce), Math.abs(moment), material, section);
     return {
       elementId,
       material: 'concrete',
-      ratio: columnRatio,
-      status: columnRatio <= 1.0 ? 'pass' : 'fail',
+      ratio: columnResult.ratio,
+      status: columnResult.ratio <= 1.0 ? 'pass' : 'fail',
       details: {
-        flexureRatio: columnRatio,
+        flexureRatio: columnResult.ratio,
         shearRatio: 0,
         AsRequired: 0.01 * Ag, // Minimum 1%
         AvRequired: 0,
+        phiPn: columnResult.phiPn,
+        phiMn: 0, // Not checked — the column interaction covers flexure
+        phiVn: 0, // Not checked
       },
     };
   }
@@ -58,6 +61,9 @@ export function designConcreteElement(
       shearRatio: shearResult.ratio,
       AsRequired: flexureResult.AsRequired,
       AvRequired: shearResult.AvRequired,
+      phiPn: 0, // Not checked — beam branch carries no axial capacity
+      phiMn: flexureResult.phiMn,
+      phiVn: shearResult.phiVn,
     },
   };
 }

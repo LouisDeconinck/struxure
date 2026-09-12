@@ -50,13 +50,13 @@ describe('ACI 318 — beam flexure (Whitney stress block)', () => {
   it('solves the textbook area for Mu = 200 kip-ft', () => {
     // Rn = Mu/(phi*b*d^2) = 2400/(0.9*12*21.5^2) = 0.4807 ksi
     // As = (0.85*f'c*b*d/fy)*(1 - sqrt(1 - 2Rn/(0.85 f'c))) = 2.239 in^2
-    const { ratio, AsRequired } = checkFlexure(2400, C4000, BEAM_12x24);
+    const { ratio, AsRequired, phiMn } = checkFlexure(2400, C4000, BEAM_12x24);
     expect(AsRequired).toBeCloseTo(2.239, 3);
 
     // Independent back-check: with that As, phi*Mn must return the demand.
     const a = (AsRequired * FY) / (0.85 * 4 * B);
     expect(a).toBeCloseTo(3.292, 3);
-    const phiMn = 0.9 * AsRequired * FY * (D - a / 2);
+    expect(phiMn).toBeCloseTo(0.9 * AsRequired * FY * (D - a / 2), 6);
     expect(phiMn).toBeCloseTo(2400, 0);
     expect(ratio).toBeCloseTo(1.0, 6);
   });
@@ -65,7 +65,8 @@ describe('ACI 318 — beam flexure (Whitney stress block)', () => {
     // With As pinned at As,min = 0.86 in^2:
     //   a = 0.86*60/(0.85*4*12) = 1.265 in
     //   phi*Mn = 0.9*0.86*60*(21.5 - 0.632) = 969 kip-in
-    const { ratio } = checkFlexure(100, C4000, BEAM_12x24);
+    const { ratio, phiMn } = checkFlexure(100, C4000, BEAM_12x24);
+    expect(phiMn).toBeCloseTo(969.1, 1);
     expect(ratio).toBeCloseTo(100 / 969.1, 3);
     expect(ratio).toBeLessThan(1);
   });
@@ -80,16 +81,20 @@ describe('ACI 318 — beam flexure (Whitney stress block)', () => {
   });
 
   it('flags a section too small to develop the moment', () => {
-    // Beyond the balanced point the quadratic has no real root.
-    const { ratio, AsRequired } = checkFlexure(20000, C4000, BEAM_12x24);
+    // Beyond the balanced point the quadratic has no real root. The reported
+    // capacity is the ceiling at the singular point, Rn = 0.425*f'c:
+    //   phi*Mn,max = 0.9 * 0.425 * 4 * 12 * 21.5^2 = 8487 kip-in < 20000
+    const { ratio, AsRequired, phiMn } = checkFlexure(20000, C4000, BEAM_12x24);
     expect(AsRequired).toBe(999);
     expect(ratio).toBe(10);
+    expect(phiMn).toBeCloseTo(8487, 0);
+    expect(phiMn).toBeLessThan(20000);
   });
 
   it('is sign-independent and zero for no moment', () => {
     expect(checkFlexure(-2400, C4000, BEAM_12x24).AsRequired)
       .toBeCloseTo(checkFlexure(2400, C4000, BEAM_12x24).AsRequired, 12);
-    expect(checkFlexure(0, C4000, BEAM_12x24)).toEqual({ ratio: 0, AsRequired: 0 });
+    expect(checkFlexure(0, C4000, BEAM_12x24)).toEqual({ ratio: 0, AsRequired: 0, phiMn: 0 });
   });
 });
 
@@ -102,7 +107,10 @@ describe('ACI 318 — beam shear', () => {
 
   it('concrete capacity matches Eq. 22.5.5.1', () => {
     expect(VC).toBeCloseTo(32.635, 3);
-    expect(PHI_VC).toBeCloseTo(24.476, 3);
+    // The check now reports the strength it measured against — any demand
+    // below phi*Vc leaves phiVn = phi*Vc = 24.476 kips.
+    const { phiVn } = checkShear(10, C4000, BEAM_12x24);
+    expect(phiVn).toBeCloseTo(24.476, 3);
   });
 
   it('reaches D/C = 1.0 at phi*Vc with no stirrups required', () => {
@@ -118,8 +126,10 @@ describe('ACI 318 — beam shear', () => {
   });
 
   it('requires stirrups above phi*Vc', () => {
-    const { AvRequired } = checkShear(PHI_VC * 1.5, C4000, BEAM_12x24);
+    const { AvRequired, phiVn } = checkShear(PHI_VC * 1.5, C4000, BEAM_12x24);
     expect(AvRequired).toBeGreaterThan(0);
+    // With stirrups engaged, phi*Vn = phi*(Vc + Vs) exceeds concrete alone.
+    expect(phiVn).toBeGreaterThan(PHI_VC);
   });
 
   it('rejects a demand beyond the Vs limit of 22.5.1.2', () => {
@@ -128,9 +138,12 @@ describe('ACI 318 — beam shear', () => {
     expect(VsMax).toBeCloseTo(130.54, 2);
 
     const beyond = 0.75 * (VC + VsMax) * 1.05;
-    const { ratio, AvRequired } = checkShear(beyond, C4000, BEAM_12x24);
+    const { ratio, AvRequired, phiVn } = checkShear(beyond, C4000, BEAM_12x24);
     expect(ratio).toBe(10);
     expect(AvRequired).toBe(999);
+    // The reported capacity is the section ceiling: phi*(Vc + Vs,max).
+    expect(phiVn).toBeCloseTo(0.75 * (VC + VsMax), 10);
+    expect(phiVn).toBeCloseTo(122.38, 2);
   });
 
   it('does not pass a demand an order of magnitude past capacity', () => {
@@ -142,7 +155,11 @@ describe('ACI 318 — beam shear', () => {
   it('is sign-independent and zero for no shear', () => {
     expect(checkShear(-20, C4000, BEAM_12x24).ratio)
       .toBeCloseTo(checkShear(20, C4000, BEAM_12x24).ratio, 12);
-    expect(checkShear(0, C4000, BEAM_12x24)).toEqual({ ratio: 0, AvRequired: 0 });
+    const zero = checkShear(0, C4000, BEAM_12x24);
+    expect(zero.ratio).toBe(0);
+    expect(zero.AvRequired).toBe(0);
+    // Capacity is a section property — reported even with no demand.
+    expect(zero.phiVn).toBeCloseTo(PHI_VC, 10);
   });
 });
 
@@ -159,24 +176,33 @@ describe('ACI 318 — column P-M interaction', () => {
   };
 
   it('returns zero with no demand', () => {
-    expect(checkColumn(0, 0, C4000, COL_16x16)).toBe(0);
+    const { ratio } = checkColumn(0, 0, C4000, COL_16x16);
+    expect(ratio).toBe(0);
+  });
+
+  it('reports the pure-compression capacity phiPn0', () => {
+    // Hand calc for a 16x16 tied column at the assumed 1% steel (Ast = 2.56 in^2):
+    //   Pn0 = 0.80 * (0.85*4*(256-2.56) + 60*2.56) = 0.80 * 1015.3 = 812.2 kips
+    //   phiPn0 = 0.65 * 812.2 = 527.9 kips
+    const { phiPn } = checkColumn(100, 200, C4000, COL_16x16);
+    expect(phiPn).toBeCloseTo(528, 0);
   });
 
   it('grows with axial load at constant moment', () => {
-    const low = checkColumn(100, 200, C4000, COL_16x16);
-    const high = checkColumn(400, 200, C4000, COL_16x16);
+    const low = checkColumn(100, 200, C4000, COL_16x16).ratio;
+    const high = checkColumn(400, 200, C4000, COL_16x16).ratio;
     expect(high).toBeGreaterThan(low);
   });
 
   it('grows with moment at constant axial load', () => {
-    const low = checkColumn(300, 100, C4000, COL_16x16);
-    const high = checkColumn(300, 600, C4000, COL_16x16);
+    const low = checkColumn(300, 100, C4000, COL_16x16).ratio;
+    const high = checkColumn(300, 600, C4000, COL_16x16).ratio;
     expect(high).toBeGreaterThan(low);
   });
 
   it('stays within the documented 0..10 range', () => {
-    expect(checkColumn(50000, 50000, C4000, COL_16x16)).toBe(10);
-    expect(checkColumn(1, 1, C4000, COL_16x16)).toBeGreaterThanOrEqual(0);
+    expect(checkColumn(50000, 50000, C4000, COL_16x16).ratio).toBe(10);
+    expect(checkColumn(1, 1, C4000, COL_16x16).ratio).toBeGreaterThanOrEqual(0);
   });
 });
 
@@ -186,6 +212,9 @@ describe('ACI 318 — element dispatch', () => {
     const r = designConcreteElement('E1', 10, 20, 1200, C4000, BEAM_12x24);
     expect(r.details.shearRatio).toBeGreaterThan(0);
     expect(r.details.AsRequired).toBeGreaterThan(0);
+    // Beam capacities are surfaced alongside the ratios.
+    expect(r.details.phiMn).toBeGreaterThan(0);
+    expect(r.details.phiVn).toBeCloseTo(24.476, 3); // phi*Vc, Eq. 22.5.5.1
   });
 
   it('treats a high-axial element as a column', () => {
@@ -193,6 +222,9 @@ describe('ACI 318 — element dispatch', () => {
     // The column branch reports no shear check and nominal 1% steel.
     expect(r.details.shearRatio).toBe(0);
     expect(r.details.AsRequired).toBeCloseTo(0.01 * 288, 6);
+    // phiPn0 for a 12x24 column at 1% steel:
+    //   0.65 * 0.80 * (0.85*4*(288-2.88) + 60*2.88) = 594 kips
+    expect(r.details.phiPn).toBeCloseTo(594, 0);
   });
 
   it('reports the governing ratio and a matching status', () => {

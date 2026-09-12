@@ -24,19 +24,23 @@ export function designSteelElement(
   L: number
 ): SteelDesignResult {
   // Tension check
-  const tensionRatio = checkTension(axialForce, material, section);
+  const tension = checkTension(axialForce, material, section);
 
   // Compression check
-  const compressionRatio = checkCompression(-axialForce, material, section, L, L);
+  const compression = checkCompression(-axialForce, material, section, L, L);
 
   // Flexure check
-  const flexureRatio = checkFlexure(momentZ, material, section, L);
+  const flexure = checkFlexure(momentZ, material, section, L);
+
+  const tensionRatio = tension.ratio;
+  const compressionRatio = compression.ratio;
+  const flexureRatio = flexure.ratio;
 
   // Axial ratio for combined check (governing of tension or compression)
   const axialRatio = Math.max(tensionRatio, compressionRatio);
 
   // Combined interaction check
-  const combinedRatio = checkCombined(axialRatio, flexureRatio);
+  const combinedRatio = checkCombined(axialRatio, flexureRatio).ratio;
 
   const governingRatio = Math.max(tensionRatio, compressionRatio, flexureRatio, combinedRatio);
 
@@ -51,6 +55,10 @@ export function designSteelElement(
       flexureRatio,
       combinedRatio,
       governingCheck: governingRatio,
+      // Capacity behind the governing axial ratio (tension yielding or
+      // compression buckling, whichever produced the larger D/C)
+      phiPn: compressionRatio > tensionRatio ? compression.phiPn : tension.phiPn,
+      phiMn: flexure.phiMn,
     },
   };
 }

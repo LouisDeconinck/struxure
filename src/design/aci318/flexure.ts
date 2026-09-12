@@ -6,14 +6,15 @@ import type { Material, Section } from '../../core/types';
  * Whitney stress block method.
  * φ = 0.90 for tension-controlled sections
  *
- * Returns: { ratio, AsRequired }
+ * Returns: { ratio, AsRequired, phiMn } — phiMn is the design moment strength
+ * with As = AsRequired provided.
  */
 export function checkFlexure(
   Mu: number,         // Required moment (kip-in, absolute)
   material: Material,
   section: Section
-): { ratio: number; AsRequired: number } {
-  if (Math.abs(Mu) < 1e-10) return { ratio: 0, AsRequired: 0 };
+): { ratio: number; AsRequired: number; phiMn: number } {
+  if (Math.abs(Mu) < 1e-10) return { ratio: 0, AsRequired: 0, phiMn: 0 };
 
   const fc = (material.fc || 4); // ksi
   const fy = 60; // Grade 60 rebar (ksi)
@@ -30,13 +31,14 @@ export function checkFlexure(
   const Rn = factored / (b * d * d);
   const discriminant = 1 - (2 * Rn) / (0.85 * fc);
 
-  let AsRequired: number;
   if (discriminant < 0) {
-    // Section is too small — needs compression steel or larger section
-    AsRequired = 999;
-  } else {
-    AsRequired = (0.85 * fc * b * d / fy) * (1 - Math.sqrt(discriminant));
+    // Section is too small — needs compression steel or a larger section.
+    // phiMn reports the ceiling on what it could carry: the moment at the
+    // quadratic's singular point, where Rn = 0.425*f'c.
+    return { ratio: 10, AsRequired: 999, phiMn: phi * 0.425 * fc * b * d * d };
   }
+
+  let AsRequired = (0.85 * fc * b * d / fy) * (1 - Math.sqrt(discriminant));
 
   // Enforce minimum As (ACI 318-19 9.6.1.2). Both expressions want f'c and fy
   // in psi, hence the *1000 on each; the area itself is already in square
@@ -53,5 +55,5 @@ export function checkFlexure(
 
   const ratio = Math.abs(Mu) / Math.max(phiMn, 1e-10);
 
-  return { ratio: Math.min(ratio, 10), AsRequired };
+  return { ratio: Math.min(ratio, 10), AsRequired, phiMn };
 }
