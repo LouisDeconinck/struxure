@@ -1,10 +1,7 @@
-import type { StructuralModel } from '../core/types';
+import { isRecord, validateModelShape } from './model-validator';
+import type { ValidationResult } from './model-validator';
 
-export interface ValidationResult {
-  success: boolean;
-  model?: StructuralModel;
-  errors: string[];
-}
+export type { ValidationResult };
 
 /**
  * Coerce common LLM mistakes before validation:
@@ -100,8 +97,6 @@ function coerceModel(parsed: Record<string, unknown>): void {
 }
 
 export function extractAndValidateModel(llmResponse: string): ValidationResult {
-  const errors: string[] = [];
-
   // 1. Extract JSON from code fences or raw
   const jsonMatch = llmResponse.match(/```json\s*([\s\S]*?)```/)
     || llmResponse.match(/```\s*([\s\S]*?)```/)
@@ -114,67 +109,19 @@ export function extractAndValidateModel(llmResponse: string): ValidationResult {
   const rawJson = jsonMatch[1].trim();
 
   // 2. Parse JSON
-  let parsed: Record<string, unknown>;
+  let parsed: unknown;
   try {
     parsed = JSON.parse(rawJson);
   } catch (e) {
     return { success: false, errors: [`Invalid JSON: ${e instanceof Error ? e.message : e}`] };
   }
 
-  // 3. Ensure required arrays exist
-  const requiredArrays = ['nodes', 'elements', 'materials', 'sections', 'supports', 'nodalLoads'];
-  for (const key of requiredArrays) {
-    if (!Array.isArray(parsed[key])) {
-      errors.push(`Missing or invalid "${key}" array`);
-    }
-  }
-  // distributedLoads is optional
-  if (!Array.isArray(parsed.distributedLoads)) {
-    parsed.distributedLoads = [];
+  if (!isRecord(parsed)) {
+    return { success: false, errors: ['Response does not contain a model object'] };
   }
 
-  if (errors.length > 0) {
-    return { success: false, errors };
-  }
-
-  // 3.5. Coerce common LLM type mistakes
+  // 3. Coerce common LLM type mistakes, then validate shape,
+  //    cross-references and sanity against the shared model validator.
   coerceModel(parsed);
-
-  const model = parsed as unknown as StructuralModel;
-
-  // 4. Cross-reference validation
-  const nodeIds = new Set(model.nodes.map((n) => n.id));
-  const materialIds = new Set(model.materials.map((m) => m.id));
-  const sectionIds = new Set(model.sections.map((s) => s.id));
-  const elementIds = new Set(model.elements.map((e) => e.id));
-
-  for (const elem of model.elements) {
-    if (!nodeIds.has(elem.nodeI)) errors.push(`Element ${elem.id}: nodeI "${elem.nodeI}" not found`);
-    if (!nodeIds.has(elem.nodeJ)) errors.push(`Element ${elem.id}: nodeJ "${elem.nodeJ}" not found`);
-    if (!materialIds.has(elem.materialId)) errors.push(`Element ${elem.id}: materialId "${elem.materialId}" not found`);
-    if (!sectionIds.has(elem.sectionId)) errors.push(`Element ${elem.id}: sectionId "${elem.sectionId}" not found`);
-  }
-
-  for (const sup of model.supports) {
-    if (!nodeIds.has(sup.nodeId)) errors.push(`Support: nodeId "${sup.nodeId}" not found`);
-  }
-
-  for (const load of model.nodalLoads) {
-    if (!nodeIds.has(load.nodeId)) errors.push(`Load ${load.id}: nodeId "${load.nodeId}" not found`);
-  }
-
-  for (const dl of model.distributedLoads) {
-    if (!elementIds.has(dl.elementId)) errors.push(`DistributedLoad ${dl.id}: elementId "${dl.elementId}" not found`);
-  }
-
-  // 5. Basic sanity checks
-  if (model.nodes.length === 0) errors.push('Model has no nodes');
-  if (model.elements.length === 0) errors.push('Model has no elements');
-  if (model.supports.length === 0) errors.push('Model has no supports — structure will be unstable');
-
-  if (errors.length > 0) {
-    return { success: false, errors };
-  }
-
-  return { success: true, model, errors: [] };
+  return validateModelShape(parsed);
 }
