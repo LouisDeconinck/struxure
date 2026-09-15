@@ -11,10 +11,13 @@ export type { ValidationResult };
  * - Missing moment fields → default 0
  */
 function coerceModel(parsed: Record<string, unknown>): void {
+  // Every loop skips non-object items — validateModelShape reports them
+  // afterwards, and dereferencing fields on `null` here would throw first.
   // Coerce node IDs to strings
   const nodes = parsed.nodes as Array<Record<string, unknown>> | undefined;
   if (Array.isArray(nodes)) {
     for (const n of nodes) {
+      if (!isRecord(n)) continue;
       if (typeof n.id === 'number') n.id = `N${n.id}`;
     }
   }
@@ -23,6 +26,7 @@ function coerceModel(parsed: Record<string, unknown>): void {
   const elements = parsed.elements as Array<Record<string, unknown>> | undefined;
   if (Array.isArray(elements)) {
     for (const e of elements) {
+      if (!isRecord(e)) continue;
       if (typeof e.id === 'number') e.id = `E${e.id}`;
       if (typeof e.nodeI === 'number') e.nodeI = `N${e.nodeI}`;
       if (typeof e.nodeJ === 'number') e.nodeJ = `N${e.nodeJ}`;
@@ -36,6 +40,7 @@ function coerceModel(parsed: Record<string, unknown>): void {
   const materials = parsed.materials as Array<Record<string, unknown>> | undefined;
   if (Array.isArray(materials)) {
     for (const m of materials) {
+      if (!isRecord(m)) continue;
       if (typeof m.id === 'number') m.id = `M${m.id}`;
     }
   }
@@ -44,6 +49,7 @@ function coerceModel(parsed: Record<string, unknown>): void {
   const sections = parsed.sections as Array<Record<string, unknown>> | undefined;
   if (Array.isArray(sections)) {
     for (const s of sections) {
+      if (!isRecord(s)) continue;
       if (typeof s.id === 'number') s.id = `S${s.id}`;
     }
   }
@@ -52,6 +58,7 @@ function coerceModel(parsed: Record<string, unknown>): void {
   const supports = parsed.supports as Array<Record<string, unknown>> | undefined;
   if (Array.isArray(supports)) {
     for (const sup of supports) {
+      if (!isRecord(sup)) continue;
       if (typeof sup.nodeId === 'number') sup.nodeId = `N${sup.nodeId}`;
       for (const key of ['dx', 'dy', 'dz', 'rx', 'ry', 'rz']) {
         const v = sup[key];
@@ -72,6 +79,7 @@ function coerceModel(parsed: Record<string, unknown>): void {
   if (Array.isArray(nodalLoads)) {
     for (let i = 0; i < nodalLoads.length; i++) {
       const load = nodalLoads[i];
+      if (!isRecord(load)) continue;
       if (typeof load.id === 'number') load.id = `L${load.id}`;
       if (!load.id) load.id = `L${i + 1}`;
       if (typeof load.nodeId === 'number') load.nodeId = `N${load.nodeId}`;
@@ -86,6 +94,7 @@ function coerceModel(parsed: Record<string, unknown>): void {
   if (Array.isArray(distLoads)) {
     for (let i = 0; i < distLoads.length; i++) {
       const dl = distLoads[i];
+      if (!isRecord(dl)) continue;
       if (typeof dl.id === 'number') dl.id = `DL${dl.id}`;
       if (!dl.id) dl.id = `DL${i + 1}`;
       if (typeof dl.elementId === 'number') dl.elementId = `E${dl.elementId}`;

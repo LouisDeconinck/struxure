@@ -140,6 +140,26 @@ function checkFieldTypes(parsed: Record<string, unknown>): string[] {
   return errors;
 }
 
+/**
+ * Report array items that are not objects. `checkFieldTypes` covers this for
+ * the strict file path, but the lenient AI path skips field checks — without
+ * this guard `checkReferences` would dereference `.id` on `null` and throw
+ * instead of returning errors.
+ */
+function checkItemsAreObjects(parsed: Record<string, unknown>): string[] {
+  const errors: string[] = [];
+  for (const [key, spec] of Object.entries(ARRAY_FIELDS)) {
+    const items = parsed[key];
+    if (!Array.isArray(items)) continue; // already reported by checkRequiredArrays
+    items.forEach((item, i) => {
+      if (!isRecord(item)) {
+        errors.push(`${spec.label} ${i + 1}: expected an object`);
+      }
+    });
+  }
+  return errors;
+}
+
 /** Check that every referenced node/material/section/element ID exists. */
 function checkReferences(model: StructuralModel): string[] {
   const errors: string[] = [];
@@ -189,7 +209,7 @@ export function validateModelShape(parsed: unknown): ValidationResult {
     return { success: false, errors: ['Expected a model object'] };
   }
 
-  const errors = checkRequiredArrays(parsed);
+  const errors = [...checkRequiredArrays(parsed), ...checkItemsAreObjects(parsed)];
   if (errors.length > 0) {
     return { success: false, errors };
   }

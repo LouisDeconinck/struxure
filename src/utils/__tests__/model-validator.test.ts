@@ -116,6 +116,12 @@ describe('validateModelJson', () => {
     expect(result.errors[0]).toBe('Support: nodeId "N9" not found');
   });
 
+  it('reports a non-object array item instead of throwing', () => {
+    const result = validateModelJson(jsonOf({ nodes: [null] }));
+    expect(result.success).toBe(false);
+    expect(result.errors).toContain('Node 1: expected an object');
+  });
+
   it('accepts an empty model — a saved work in progress must still load', () => {
     const result = validateModelJson(
       JSON.stringify({
@@ -132,6 +138,26 @@ describe('validateModelShape', () => {
     const result = validateModelShape({ ...validModel, elements: [] });
     expect(result.success).toBe(false);
     expect(result.errors).toContain('Model has no elements');
+  });
+
+  it('returns an error instead of throwing on a null array item', () => {
+    const result = validateModelShape({ nodes: [null] });
+    expect(result.success).toBe(false);
+    expect(result.errors).toContain('Node 1: expected an object');
+  });
+
+  it.each([
+    ['nodes', 'Node 1: expected an object'],
+    ['elements', 'Element 1: expected an object'],
+    ['materials', 'Material 1: expected an object'],
+    ['sections', 'Section 1: expected an object'],
+    ['supports', 'Support 1: expected an object'],
+    ['nodalLoads', 'Nodal load 1: expected an object'],
+    ['distributedLoads', 'Distributed load 1: expected an object'],
+  ])('reports a non-object item in "%s" without throwing', (key, message) => {
+    const result = validateModelShape({ ...validModel, [key]: [null] });
+    expect(result.success).toBe(false);
+    expect(result.errors).toContain(message);
   });
 });
 
@@ -155,5 +181,11 @@ describe('extractAndValidateModel (AI path)', () => {
     const result = extractAndValidateModel('{"nodes": []}');
     expect(result.success).toBe(false);
     expect(result.errors).toContain('Missing or invalid "elements" array');
+  });
+
+  it('returns an error instead of throwing on a null array item', () => {
+    const result = extractAndValidateModel(JSON.stringify({ ...validModel, nodes: [null] }));
+    expect(result.success).toBe(false);
+    expect(result.errors).toContain('Node 1: expected an object');
   });
 });
